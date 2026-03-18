@@ -18,6 +18,7 @@ import json
 import os
 import pep8
 import unittest
+from unittest.mock import MagicMock
 DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
            "Review": Review, "State": State, "User": User}
@@ -86,3 +87,27 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_get(self):
+        """Test that get returns the matching object or None"""
+        storage = DBStorage.__new__(DBStorage)
+        state = State()
+        city = City()
+        mock_session = MagicMock()
+        mock_session.query.return_value.all.return_value = [state, city]
+        storage._DBStorage__session = mock_session
+
+        self.assertIs(storage.get(State, state.id), state)
+        self.assertIsNone(storage.get(State, "missing-id"))
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_count(self):
+        """Test that count returns total and class-specific counts"""
+        storage = DBStorage.__new__(DBStorage)
+        storage.all = MagicMock(side_effect=[
+            {"State.1": State(), "City.1": City(), "City.2": City()},
+            {"City.1": City(), "City.2": City()}
+        ])
+
+        self.assertEqual(storage.count(), 3)
+        self.assertEqual(storage.count(City), 2)
