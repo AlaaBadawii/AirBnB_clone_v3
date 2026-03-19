@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """This module defines the Flask application for the API."""
-from flask import Flask
+from flask import Flask, jsonify
 from models import storage
 from os import getenv
 from api.v1.views import app_views
@@ -15,6 +15,10 @@ app.register_blueprint(app_views)
 def close_conn(error):
     """Close storage connnection after each request"""
     storage.close()
+
+@app.errorhandler(404)
+def Not_found(error):
+    return jsonify({"error": "Not found"})
 
 
 if __name__ == "__main__":
