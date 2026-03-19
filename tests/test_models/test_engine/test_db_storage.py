@@ -79,14 +79,32 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_no_class(self):
         """Test that all returns all rows when no class is passed"""
+        storage = DBStorage.__new__(DBStorage)
+        mock_session = MagicMock()
+        mock_session.query.return_value.all.return_value = [State(), City()]
+        storage._DBStorage__session = mock_session
+
+        self.assertEqual(len(storage.all()), 2)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_new(self):
         """test that new adds an object to the database"""
+        storage = DBStorage.__new__(DBStorage)
+        mock_session = MagicMock()
+        storage._DBStorage__session = mock_session
+        obj = State()
+        storage.new(obj)
+        mock_session.add.assert_called_once_with(obj)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+        storage = DBStorage.__new__(DBStorage)
+        mock_session = MagicMock()
+        storage._DBStorage__session = mock_session
+        storage.save()
+        mock_session.commit.assert_called_once()
+
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_get(self):
         """Test that get returns the matching object or None"""
