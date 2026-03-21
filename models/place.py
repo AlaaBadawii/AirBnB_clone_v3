@@ -53,6 +53,9 @@ class Place(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes Place"""
         super().__init__(*args, **kwargs)
+        if models.storage_t != 'db' and 'amenity_ids' not in self.__dict__:
+            # Keep FileStorage links per-instance instead of sharing the class list.
+            self.amenity_ids = []
 
     if models.storage_t != 'db':
         @property
@@ -73,6 +76,6 @@ class Place(BaseModel, Base):
             amenity_list = []
             all_amenities = models.storage.all(Amenity)
             for amenity in all_amenities.values():
-                if amenity.place_id == self.id:
+                if amenity.id in self.amenity_ids:
                     amenity_list.append(amenity)
             return amenity_list
