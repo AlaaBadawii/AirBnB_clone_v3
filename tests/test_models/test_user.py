@@ -4,6 +4,7 @@ Contains the TestUserDocs classes
 """
 
 from datetime import datetime
+from hashlib import md5
 import inspect
 import models
 from models import user
@@ -85,6 +86,26 @@ class TestUser(unittest.TestCase):
         else:
             self.assertEqual(user.password, "")
 
+    def test_password_is_hashed_when_set_to_plain_text(self):
+        """Test plain-text passwords are stored as md5 hashes"""
+        user = User()
+        user.password = "secret"
+        self.assertEqual(user.password, md5("secret".encode("utf-8"))
+                         .hexdigest())
+
+    def test_password_hash_is_not_rehashed(self):
+        """Test an existing md5 password hash is preserved"""
+        user = User()
+        hashed_password = md5("secret".encode("utf-8")).hexdigest()
+        user.password = hashed_password
+        self.assertEqual(user.password, hashed_password)
+
+    def test_non_string_password_is_stored_as_is(self):
+        """Test non-string password values bypass hashing"""
+        user = User()
+        user.password = 1234
+        self.assertEqual(user.password, 1234)
+
     def test_first_name_attr(self):
         """Test that User has attr first_name, and it's an empty string"""
         user = User()
@@ -110,7 +131,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(type(new_d), dict)
         self.assertFalse("_sa_instance_state" in new_d)
         for attr in u.__dict__:
-            if attr is not "_sa_instance_state":
+            if attr != "_sa_instance_state":
                 self.assertTrue(attr in new_d)
         self.assertTrue("__class__" in new_d)
 
@@ -124,6 +145,21 @@ class TestUser(unittest.TestCase):
         self.assertEqual(type(new_d["updated_at"]), str)
         self.assertEqual(new_d["created_at"], u.created_at.strftime(t_format))
         self.assertEqual(new_d["updated_at"], u.updated_at.strftime(t_format))
+
+    def test_to_dict_excludes_password_by_default(self):
+        """Test password is omitted from the default dict view"""
+        user = User()
+        user.password = "secret"
+        self.assertNotIn("password", user.to_dict())
+
+    def test_to_dict_for_storage_includes_hashed_password(self):
+        """Test password is kept for storage and remains hashed"""
+        user = User()
+        user.password = "secret"
+        serialized = user.to_dict(for_storage=True)
+        self.assertIn("password", serialized)
+        self.assertEqual(serialized["password"],
+                         md5("secret".encode("utf-8")).hexdigest())
 
     def test_str(self):
         """test that the str method has the correct output"""
