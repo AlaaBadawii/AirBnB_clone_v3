@@ -21,7 +21,8 @@ def close_conn(error):
 
 @app.errorhandler(404)
 def Not_found(error):
-    return jsonify({"error": "Not found"})
+    """Return a JSON 404 response for missing API resources."""
+    return jsonify({"error": "Not found"}), 404
 
 
 if __name__ == "__main__":
