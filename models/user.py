@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 """ holds class User"""
+import re
+from hashlib import md5
+
 import models
 from models.base_model import BaseModel, Base
 from os import getenv
@@ -27,3 +30,10 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+
+    def __setattr__(self, key, value):
+        """hash password values before storing them"""
+        if key == "password" and isinstance(value, str):
+            if not re.fullmatch(r"[0-9a-fA-F]{32}", value):
+                value = md5(value.encode("utf-8")).hexdigest()
+        super().__setattr__(key, value)
