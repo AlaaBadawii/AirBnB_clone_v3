@@ -1,6 +1,80 @@
 # AirBnB Clone - The Console
 The console is the first segment of the AirBnB project at Holberton School that will collectively cover fundamental concepts of higher level programming. The goal of AirBnB project is to eventually deploy our server a simple copy of the AirBnB Website(HBnB). A command interpreter is created in this segment to manage objects for the AirBnB(HBnB) website.
 
+## AirBnB Clone - RESTful API
+Associated with ALX Africa
+
+#### Project Overview - Phase 5: RESTful API Development
+In this phase, the AirBnB clone was extended with a fully functional RESTful API built on top of the existing Flask application and storage layers.
+
+Key additions in this phase:
+* Built the API architecture under `api/v1/` using Blueprints, modular views, and application setup for clean route organization.
+* Extended both `DBStorage` and `FileStorage` with `get()` and `count()` methods for direct object lookup by ID and resource counting across storage engines.
+* Added unit tests covering the new storage methods and the newer password-handling behavior for `User`.
+* Implemented RESTful CRUD endpoints for `State`, `City`, `Amenity`, `User`, `Place`, and `Review`, each returning JSON with proper `400` and `404` error handling.
+* Configured CORS with `flask_cors` to allow safe cross-origin requests and prepare the project for frontend consumption.
+* Handled `Place` to `Amenity` linking with storage-aware logic for both SQLAlchemy relationships and FileStorage `amenity_ids` management.
+* Improved security by hashing `User` passwords with MD5 on creation and update, while excluding passwords from API responses.
+* Preserved backward compatibility so the existing project behavior and tests continue to work across both storage modes.
+
+This phase strengthened practical skills in RESTful API design, Flask architecture, storage abstraction, test coverage, and security-conscious serialization.
+
+GitHub: https://github.com/AlaaBadawii/AirBnB_clone_v3
+
+Skills: RESTful API Design, Flask, Python, SQLAlchemy, CORS, Unit Testing, API Architecture, JSON Serialization, Security
+
+## API Testing
+The REST API now includes integration tests that exercise the Flask app directly and verify:
+* JSON responses and expected HTTP status codes
+* CRUD behavior for `users`, `states`, `cities`, `amenities`, `places`, and `reviews`
+* `/api/v1/status` and `/api/v1/stats`
+* `Place` and `Amenity` linking routes
+* password hashing and password exclusion from API responses
+
+Run the API test suite with:
+```bash
+python3 -m unittest tests.test_api.test_api
+```
+
+You can also run the user model tests with:
+```bash
+python3 -m unittest tests.test_models.test_user
+```
+
+## Run the API
+Start the API locally with:
+```bash
+export HBNB_API_HOST=0.0.0.0
+export HBNB_API_PORT=5000
+python3 -m api.v1.app
+```
+
+If you want to use FileStorage explicitly:
+```bash
+export HBNB_TYPE_STORAGE=file
+python3 -m api.v1.app
+```
+
+If you want to use DBStorage, set the database environment first:
+```bash
+export HBNB_TYPE_STORAGE=db
+export HBNB_MYSQL_USER=<your_user>
+export HBNB_MYSQL_PWD=<your_password>
+export HBNB_MYSQL_HOST=localhost
+export HBNB_MYSQL_DB=<your_database>
+python3 -m api.v1.app
+```
+
+Example requests:
+```bash
+curl http://0.0.0.0:5000/api/v1/status
+curl http://0.0.0.0:5000/api/v1/stats
+curl http://0.0.0.0:5000/api/v1/users
+curl -X POST http://0.0.0.0:5000/api/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{"email": "me@example.com", "password": "secret"}'
+```
+
 #### Functionalities of this command interpreter:
 * Create a new object (ex: a new User or a new Place)
 * Retrieve an object from a file, a database etc...
@@ -9,6 +83,9 @@ The console is the first segment of the AirBnB project at Holberton School that 
 * Destroy an object
 
 ## Table of Content
+* [AirBnB Clone - RESTful API](#airbnb-clone---restful-api)
+* [API Testing](#api-testing)
+* [Run the API](#run-the-api)
 * [Environment](#environment)
 * [Installation](#installation)
 * [File Descriptions](#file-descriptions)
